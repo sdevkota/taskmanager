@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Vue app Demo</title>
+    <!-- development version, includes helpful console warnings -->
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="nav-bar">
+        <a href="#home" class="active">Home</a>
+        <a href="#contact">Contact</a>
+        <a href="#about">About</a>
+        <a href="javascript:void(0);" class="icon" onclick="myFunction()">
+            <i class="fa fa-bars"></i>
+        </a>
+    </div>
+    <div id="app">
+        <h2>Enter Your Daily Tasks</h2>
+        <div class="task-wrapper">
+            <div>
+                <input type="text" placeholder="Enter your task name here" v-model="name">
+                <select name="status" v-model="status">
+                    <option value="incomplete">Incomplete</option>
+                    <option value="complete">Complete</option>
+                </select>
+                <br/>
+                <br/>
+                <button @click="addTask">Click here to add a new task</button>
+            </div>
+            <div class="block">
+                <h3 v-if="tasks.length">All Tasks</h3>
+                <ul>
+                    <li v-for="task in tasks" >Task Title: {{task.name}}
+                        <br>Status: {{task.status}} &nbsp;
+                        <br>IsDeleted: {{task.isDeleted}}
+                        <br>
+                        <br>
+                    </li>
+                </ul>
+            </div>
+            <div class="block">
+                <h3 v-if="incompleteTasks">Incomplete Tasks</h3>
+                <ul>
+                    <li v-for="task in incompleteTasks">Task Title: {{task.name}}
+                        <br>Status: {{task.status}}
+                        <br>
+                        <br>
+                        <span @click="deleteTask(task.id)" class="first-option">
+                            <i class="fa fa-trash" aria-hidden="true"></i>&nbsp;Delete Task
+                        </span>
+                        <br>
+                        <span @click="complete(task.id)" class="second-option">
+                            <i class="fa fa-check" aria-hidden="true"></i>&nbsp;Mark Completed
+                        </span>
+
+                    </li>
+                </ul>
+            </div>
+            <div class="block">
+                <h3 v-if="completedTasks">Completed Tasks</h3>
+                <ul>
+                    <li v-for="task in completedTasks">Task Title: {{task.name}}
+                        <br>Status: {{task.status}}
+                        <br>
+                        <br>
+                        <span @click="deleteTask(task.id)" class="first-option">
+                            <i class="fa fa-trash" aria-hidden="true"></i>&nbsp;Delete Task
+                        </span>
+                        <br>
+                        <span @click="incomplete(task.id)" class="second-option">
+                            <i class="fa fa-check" aria-hidden="true"></i>&nbsp;Mark Incomplete
+                        </span>
+
+                    </li>
+                </ul>
+            </div>
+            <div class="block">
+                <h3 v-if="deletedTasks">Deleted Tasks</h3>
+                <ul>
+                    <li v-for="task in deletedTasks">Task Title: {{task.name}}
+                        <br>Status: {{task.status}} &nbsp;
+                        <br>IsDeleted: {{task.isDeleted}}
+                        <br>
+                        <br>
+                        <span @click="undoDelete(task.id)" class="first-option">
+                            <i class="fa fa-undo" aria-hidden="true"></i>&nbsp;Undo Delete
+                        </span>
+                        <br>
+                    </li>
+                </ul>
+            </div>
+            <div>
+            </div>
+        </div>
+    </div>
+    <script>
+
+        var app = new Vue({
+            el: "#app",
+            data: {
+                name: "",
+                status: "incomplete",
+                tasks: []
+            },
+            methods: {
+                addTask() {
+                    if (this.name && this.status) {
+                        let newTask = {
+                            id: this.tasks.length,
+                            name: this.name,
+                            status: this.status,
+                            isDeleted: false
+                        };
+                        this.tasks.push(newTask);
+                        this.name = "";
+                        this.status = "incomplete"
+                    }
+                },
+                //re-factoring can be done in the codes below but this is just for a beginner
+                deleteTask(id) {
+                    if (id > -1 && this.tasks) {
+                        this.tasks[id].isDeleted = true;
+                    }
+                },
+                complete(id) {
+                    if (id > -1 && this.tasks) {
+                        this.tasks[id].status = "complete";
+                    }
+                },
+                incomplete(id) {
+                    if (id > -1 && this.tasks) {
+                        this.tasks[id].status = "incomplete";
+                    }
+                },
+                undoDelete(id) {
+                    if (id > -1 && this.tasks) {
+                        this.tasks[id].isDeleted = false;
+                    }
+                }
+            },
+            computed: {
+                completedTasks() {
+                    if (this.tasks.length) {
+                        return this.tasks.filter(t => (t.status == "complete" && !t.isDeleted));
+                    }
+                },
+                incompleteTasks() {
+                    if (this.tasks.length) {
+                        return this.tasks.filter(t => (t.status == "incomplete" && !t.isDeleted));
+                    }
+                },
+                deletedTasks() {
+                    if (this.tasks.length) {
+                        return this.tasks.filter(t => t.isDeleted);
+                    }
+                }
+
+            }
+        });
+    </script>
+</body>
+
+</html>
